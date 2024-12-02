@@ -7,7 +7,6 @@ public static class Program
 {
     public static Logger Log { get; set; } = new();
     public static Config? Config { get; private set; }
-    public static bool IsActive { get; private set; } = true;
     
 
     public static void Main(string[] args)
@@ -16,7 +15,7 @@ public static class Program
         {
             Start();
 
-            while (IsActive)
+            while (true)
             {
                 CommandHandler.HandleCommand(Log.Read()?.Split(' ', StringSplitOptions.RemoveEmptyEntries));
             }
@@ -35,7 +34,6 @@ public static class Program
     
     private static void OnCancelKeyPress(object sender, ConsoleCancelEventArgs e)
     {
-        e.Cancel = true;
         Exit(1);
     }
     
@@ -58,8 +56,6 @@ public static class Program
         
         AppDomain.CurrentDomain.ProcessExit -= OnProcessExit;
         Console.CancelKeyPress -= OnCancelKeyPress;
-        
-        IsActive = false;
         
         Environment.Exit(exitCode);
     }

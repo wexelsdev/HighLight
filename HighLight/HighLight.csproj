@@ -8,12 +8,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Timersky.Config" Version="1.0.2" />
-      <PackageReference Include="Timersky.Log" Version="1.0.4" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Commands\" />
+      <PackageReference Include="Timersky.Config" Version="1.0.4" />
+      <PackageReference Include="Timersky.Log" Version="1.0.6" />
     </ItemGroup>
 
 </Project>

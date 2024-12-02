@@ -11,7 +11,7 @@ public static class CommandHandler
         RegisterCommands(Assembly.GetExecutingAssembly());
     }
 
-    private static readonly Dictionary<string, ICommand> _commands = new();
+    internal static readonly Dictionary<string, ICommand> _commands = new();
     
     public static void HandleCommand(string[]? input)
     {
@@ -28,10 +28,14 @@ public static class CommandHandler
         {
             if (command.Execute(args, out var response))
             {
+                if (string.IsNullOrEmpty(response)) return;
+                
                 Program.Log.Info(response);
             }
             else
             {
+                if (string.IsNullOrEmpty(response)) return;
+                
                 Program.Log.Error(response);
             }
         }
@@ -41,7 +45,7 @@ public static class CommandHandler
         }
     }
 
-    private static void RegisterCommands(Assembly assembly)
+    internal static void RegisterCommands(Assembly assembly)
     {
         var commandTypes = assembly
             .GetTypes()
