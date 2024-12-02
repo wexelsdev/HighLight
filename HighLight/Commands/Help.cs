@@ -1,5 +1,6 @@
 using HighLight.Attributes;
 using HighLight.Interfaces;
+using HighLight.Managers;
 
 namespace HighLight.Commands;
 
@@ -10,7 +11,7 @@ public class Help : ICommand
     public string Desc => "Placeholder";
     public bool Execute(string[] args, out string? response)
     {
-        foreach (var command in CommandHandler._commands.Values)
+        foreach (var command in CommandManager.Commands.Values)
         {
             Program.Log.Info($"{command.Name} | {command.Desc}");
         }

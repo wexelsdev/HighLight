@@ -2,16 +2,16 @@ using System.Reflection;
 using HighLight.Attributes;
 using HighLight.Interfaces;
 
-namespace HighLight;
+namespace HighLight.Managers;
 
-public static class CommandHandler
+public static class CommandManager
 {
-    static CommandHandler()
+    static CommandManager()
     {
         RegisterCommands(Assembly.GetExecutingAssembly());
     }
 
-    internal static readonly Dictionary<string, ICommand> _commands = new();
+    internal static readonly Dictionary<string, ICommand> Commands = new();
     
     public static void HandleCommand(string[]? input)
     {
@@ -24,7 +24,7 @@ public static class CommandHandler
         var commandName = input[0].ToLower();
         var args = input.Skip(1).ToArray();
 
-        if (_commands.TryGetValue(commandName, out var command))
+        if (Commands.TryGetValue(commandName, out var command))
         {
             if (command.Execute(args, out var response))
             {
@@ -55,7 +55,7 @@ public static class CommandHandler
         {
             if (Activator.CreateInstance(type) is ICommand command)
             {
-                _commands[command.Name.ToLower()] = command;
+                Commands[command.Name.ToLower()] = command;
                 Program.Log.Debug($"Registered command: {command.Name}");
             }
         }

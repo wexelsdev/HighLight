@@ -1,4 +1,5 @@
-﻿using Timersky.Config;
+﻿using HighLight.Managers;
+using Timersky.Config;
 using Timersky.Log;
 
 namespace HighLight;
@@ -17,7 +18,7 @@ public static class Program
 
             while (true)
             {
-                CommandHandler.HandleCommand(Log.Read()?.Split(' ', StringSplitOptions.RemoveEmptyEntries));
+                CommandManager.HandleCommand(Log.Read()?.Split(' ', StringSplitOptions.RemoveEmptyEntries));
             }
         }
         catch (Exception e)
