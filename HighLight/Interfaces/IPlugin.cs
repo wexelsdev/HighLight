@@ -4,12 +4,13 @@ namespace HighLight.Interfaces;
 
 public interface IPlugin<T> where T : IConfig
 {
-    public string Name { get; }
-    public string Description { get; }
-    public string Author { get; }
-    public Version Version { get; }
-    public T Config { get; }
+    string Name { get; }
+    string Description { get; }
+    string Author { get; }
+    Version Version { get; }
+    T Config { get; }
     
-    public void OnEnable();
-    public void OnDisable();
+    void OnEnable();
+    void OnDisable();
+    void OnReloaded();
 }
