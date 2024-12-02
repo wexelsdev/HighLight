@@ -1,11 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Reflection;
 using HighLight.Attributes;
 using HighLight.Interfaces;
-using Timersky.Log;
 
 namespace HighLight.Managers;
 
@@ -13,12 +8,18 @@ public static class PluginManager
 {
     private static readonly List<object> _plugins = new();
 
-    public static void LoadPlugins(string directory)
+    public static string DefaultPluginsPath { get; private set; } = $"{AppDomain.CurrentDomain.BaseDirectory}Plugins\\";
+
+    public static void LoadPlugins(string directory = "")
     {
+        if (string.IsNullOrEmpty(directory))
+        {
+            directory = DefaultPluginsPath;
+        }
+        
         if (!Directory.Exists(directory))
         {
-            Program.Log.Warning($"Plugin directory '{directory}' does not exist.");
-            return;
+            Directory.CreateDirectory(directory);
         }
 
         var pluginFiles = Directory.GetFiles(directory, "*.dll");
@@ -29,7 +30,7 @@ public static class PluginManager
                 var assembly = Assembly.LoadFrom(file);
                 var pluginTypes = assembly.GetTypes()
                     .Where(t => t.GetCustomAttribute<PluginAttribute>() != null &&
-                                t.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IPlugin<>)));
+                                t.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(Plugin<>)));
 
                 foreach (var type in pluginTypes)
                 {

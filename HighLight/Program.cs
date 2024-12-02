@@ -8,7 +8,6 @@ public static class Program
 {
     public static Logger Log { get; set; } = new();
     public static Config? Config { get; private set; }
-    
 
     public static void Main(string[] args)
     {
@@ -44,6 +43,7 @@ public static class Program
         
         Config = ConfigManager.LoadConfig<Config>();
         Log.DebugIsAllowed = Config.Debug;
+        
         
         AppDomain.CurrentDomain.ProcessExit += OnProcessExit;
         Console.CancelKeyPress += OnCancelKeyPress;
