@@ -27,12 +27,12 @@ public static class Program
         }
     }
 
-    private static void OnProcessExit(object sender, EventArgs e)
+    private static void OnProcessExit(object? sender, EventArgs e)
     {
         Exit(1);
     }
     
-    private static void OnCancelKeyPress(object sender, ConsoleCancelEventArgs e)
+    private static void OnCancelKeyPress(object? sender, ConsoleCancelEventArgs e)
     {
         Exit(1);
     }
@@ -43,7 +43,7 @@ public static class Program
         
         Config = ConfigManager.LoadConfig<Config>();
         Log.DebugIsAllowed = Config.Debug;
-        
+        PluginManager.LoadPlugins();
         
         AppDomain.CurrentDomain.ProcessExit += OnProcessExit;
         Console.CancelKeyPress += OnCancelKeyPress;
@@ -54,6 +54,8 @@ public static class Program
     public static void Exit(int exitCode)
     {
         Log.Info("Exiting...");
+        
+        PluginManager.UnloadPlugins();
         
         AppDomain.CurrentDomain.ProcessExit -= OnProcessExit;
         Console.CancelKeyPress -= OnCancelKeyPress;

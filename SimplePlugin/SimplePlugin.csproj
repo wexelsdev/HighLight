@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <Reference Include="HighLight">
+        <HintPath>..\HighLight\bin\Debug\net8.0\HighLight.dll</HintPath>
+      </Reference>
+      <Reference Include="Timersky.Config">
+        <HintPath>..\HighLight\bin\Debug\net8.0\Timersky.Config.dll</HintPath>
+      </Reference>
+      <Reference Include="Timersky.Log">
+        <HintPath>..\HighLight\bin\Debug\net8.0\Timersky.Log.dll</HintPath>
+      </Reference>
+      <Reference Include="Tomlet">
+        <HintPath>..\HighLight\bin\Debug\net8.0\Tomlet.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
+</Project>

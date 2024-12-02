@@ -10,7 +10,7 @@ public class Plugin<T> : IPlugin where T : IConfig
     public virtual string Description { get; }
     public virtual string Author { get; }
     public virtual Version Version { get; }
-    public T Config { get; private set; }
+    public T? Config { get; private set; }
     
     public virtual void OnEnable()
     {

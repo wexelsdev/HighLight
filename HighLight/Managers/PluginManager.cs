@@ -40,6 +40,7 @@ public static class PluginManager
                         _plugins.Add(instance);
                         Program.Log.Debug($"Loaded plugin: {type.Name}");
                         ((dynamic)instance).OnEnable();
+                        CommandManager.RegisterCommands(assembly);
                     }
                 }
             }
