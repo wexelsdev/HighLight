@@ -27,15 +27,8 @@ public static class Program
         }
     }
 
-    private static void OnProcessExit(object? sender, EventArgs e)
-    {
-        Exit(1);
-    }
-    
-    private static void OnCancelKeyPress(object? sender, ConsoleCancelEventArgs e)
-    {
-        Exit(1);
-    }
+    private static void OnProcessExit(object? sender, EventArgs e) => Exit(0);
+    private static void OnCancelKeyPress(object? sender, ConsoleCancelEventArgs e) => Exit(0);
     
     private static void Start()
     {

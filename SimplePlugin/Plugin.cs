@@ -1,9 +1,8 @@
-﻿using HighLight.Attributes;
+﻿using HarmonyLib;
 
 namespace SimplePlugin;
 
-[Plugin]
-public class Plugin : HighLight.Plugin<Config>
+public class Plugin : HighLight.Plugin
 {
     public string Name => "Simple Plugin";
     public string Description => "";

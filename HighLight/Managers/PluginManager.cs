@@ -1,6 +1,7 @@
 using System.Reflection;
 using HighLight.Attributes;
 using HighLight.Interfaces;
+using Timersky.Config;
 
 namespace HighLight.Managers;
 
@@ -25,22 +26,35 @@ public static class PluginManager
         var pluginFiles = Directory.GetFiles(directory, "*.dll");
         foreach (var file in pluginFiles)
         {
+            Program.Log.Debug("dll found: " + file);
+            
             try
             {
+                Program.Log.Debug("Trying to load plugin from " + file);
+                
                 var assembly = Assembly.LoadFrom(file);
-                var pluginTypes = assembly.GetTypes()
-                    .Where(t => t.GetCustomAttribute<PluginAttribute>() != null &&
-                                t.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(Plugin<>)));
+                
+                IEnumerable<Type> pluginTypes = assembly.GetTypes()
+                    .Where(t => t.IsClass && t.IsSubclassOf(typeof(Plugin)) && !t.IsAbstract);
 
-                foreach (var type in pluginTypes)
+                var enumerable = pluginTypes.ToList();
+                
+                Program.Log.Debug("Found " + enumerable.Count + " plugins");
+                
+                foreach (var type in enumerable)
                 {
+                    Program.Log.Debug("Found plugin: " + type.Name);
                     var instance = Activator.CreateInstance(type);
                     if (instance != null)
                     {
                         _plugins.Add(instance);
-                        Program.Log.Debug($"Loaded plugin: {type.Name}");
+                        Program.Log.Info($"Loaded plugin: {type.Name}");
                         ((dynamic)instance).OnEnable();
                         CommandManager.RegisterCommands(assembly);
+                    }
+                    else
+                    {
+                        Program.Log.Info("Failed to load plugin: " + type.Name);
                     }
                 }
             }

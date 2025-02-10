@@ -4,17 +4,17 @@ using Timersky.Config;
 
 namespace HighLight;
 
-public class Plugin<T> : IPlugin where T : IConfig
+public class Plugin
 {
     public virtual string Name { get; }
     public virtual string Description { get; }
     public virtual string Author { get; }
     public virtual Version Version { get; }
-    public T? Config { get; private set; }
+    //public TConfig? Config { get; private set; }
     
     public virtual void OnEnable()
     {
-        Config = ConfigManager.LoadConfig<T>($"{PluginManager.DefaultPluginsPath}{Name}.toml");
+        //Config = ConfigManager.LoadConfig<TConfig>($"{PluginManager.DefaultPluginsPath}{Name.ToLower().Replace(' ', '_')}.toml");
         Program.Log.Debug($"Loaded {Name}.");
     }
 
