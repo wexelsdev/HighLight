@@ -6,7 +6,6 @@ HighLight is a C# console application designed to demonstrate how to easily impl
 ## Features
 - **Command handler** with alias support
 - **Flexible plugin system** with DLL loading
-- **Logging system** that saves events to a file
 - **Plugin configuration support**
 
 ## Getting Started
@@ -34,7 +33,8 @@ Plugins are implemented as separate DLL files and loaded dynamically. To create 
 1. Create a new C# class library project.
 2. Reference HighLight's core library (HighLight.dll).
 3. Reference Timersky libraries (Timersky.Log.dll & Timersky.Config.dll).
-4. Implement the `Plugin` class & use plugin attribute:
+4. Reference Tomlet library.
+5. Implement the `Plugin` class & use plugin attribute:
    ```csharp
    [Plugin("MyPlugin", "Your Name", "1.0.0", "An example plugin")]
    public class MyPlugin : Plugin<IConfig>
