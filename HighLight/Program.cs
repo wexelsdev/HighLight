@@ -6,8 +6,6 @@ namespace HighLight;
 
 public static class Program
 {
-    public static Config? Config { get; private set; }
-
     public static void Main(string[] args)
     {
         try
@@ -35,7 +33,6 @@ public static class Program
         
         Log.Info("Starting...");
         
-        Config = ConfigManager.LoadConfig<Config>();
         PluginManager.LoadPlugins();
         
         AppDomain.CurrentDomain.ProcessExit += OnProcessExit;
