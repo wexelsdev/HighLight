@@ -32,15 +32,16 @@ HighLight is a C# console application designed to demonstrate how to easily impl
 ## Creating Plugins
 Plugins are implemented as separate DLL files and loaded dynamically. To create a plugin:
 1. Create a new C# class library project.
-2. Reference HighLight's core library.
-3. Implement the `IPlugin` interface:
+2. Reference HighLight's core library (HighLight.dll).
+3. Reference Timersky libraries (Timersky.Log.dll & Timersky.Config.dll).
+4. Implement the `Plugin` class & use plugin attribute:
    ```csharp
    [Plugin("MyPlugin", "Your Name", "1.0.0", "An example plugin")]
    public class MyPlugin : Plugin<IConfig>
    {
        public override void OnEnable()
        {
-           Program.Log.Info("My Plugin!");
+           Log.Info("My Plugin!");
        }
    }
    ```
