@@ -7,7 +7,9 @@ namespace HighLight.Commands;
 public class Exit : ICommand
 {
     public string Name => "Exit";
-    public string Desc => "Placeholder";
+    public string[] Aliases => [];
+    public string Description => "Close the program";
+    
     public bool Execute(string[] args, out string? response)
     {
         Program.Exit(1);

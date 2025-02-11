@@ -2,6 +2,7 @@ using System.Reflection;
 using HighLight.Attributes;
 using HighLight.Interfaces;
 using Timersky.Config;
+using Timersky.Log;
 
 namespace HighLight.Managers;
 
@@ -9,7 +10,7 @@ public static class PluginManager
 {
     private static readonly List<object> _plugins = new();
 
-    public static string DefaultPluginsPath { get; private set; } = $"{AppDomain.CurrentDomain.BaseDirectory}Plugins\\";
+    public static string DefaultPluginsPath { get; private set; } = $"{AppDomain.CurrentDomain.BaseDirectory}Plugins/";
 
     public static void LoadPlugins(string directory = "")
     {
@@ -23,44 +24,40 @@ public static class PluginManager
             Directory.CreateDirectory(directory);
         }
 
+        Log.Info("Loading plugins");
+        
         var pluginFiles = Directory.GetFiles(directory, "*.dll");
         foreach (var file in pluginFiles)
         {
-            Program.Log.Debug("dll found: " + file);
-            
             try
             {
-                Program.Log.Debug("Trying to load plugin from " + file);
-                
                 var assembly = Assembly.LoadFrom(file);
                 
                 IEnumerable<Type> pluginTypes = assembly.GetTypes()
-                    .Where(t => t.IsClass && t.IsSubclassOf(typeof(Plugin)) && !t.IsAbstract);
-
-                var enumerable = pluginTypes.ToList();
+                    .Where(t => t.IsClass && !t.IsAbstract 
+                                          && t.BaseType is { IsGenericType: true }
+                                          && t.GetCustomAttribute<PluginAttribute>() != null);
                 
-                Program.Log.Debug("Found " + enumerable.Count + " plugins");
+                var enumerable = pluginTypes.ToList();
                 
                 foreach (var type in enumerable)
                 {
-                    Program.Log.Debug("Found plugin: " + type.Name);
                     var instance = Activator.CreateInstance(type);
                     if (instance != null)
                     {
                         _plugins.Add(instance);
-                        Program.Log.Info($"Loaded plugin: {type.Name}");
                         ((dynamic)instance).OnEnable();
                         CommandManager.RegisterCommands(assembly);
                     }
                     else
                     {
-                        Program.Log.Info("Failed to load plugin: " + type.Name);
+                        Log.Info("Failed to load plugin: " + type.Name);
                     }
                 }
             }
             catch (Exception ex)
             {
-                Program.Log.Error($"Failed to load plugin from {file}: {ex.Message}");
+                Log.Error($"Failed to load plugin from {file}: {ex}");
             }
         }
     }
@@ -76,9 +73,43 @@ public static class PluginManager
 
     public static void ReloadPlugins()
     {
-        foreach (var plugin in _plugins)
+        _plugins.Clear();
+
+        Log.Info("Loading plugins");
+        
+        var pluginFiles = Directory.GetFiles(DefaultPluginsPath, "*.dll");
+        foreach (var file in pluginFiles)
         {
-            ((dynamic)plugin).OnReloaded();
+            try
+            {
+                var assembly = Assembly.LoadFrom(file);
+                
+                IEnumerable<Type> pluginTypes = assembly.GetTypes()
+                    .Where(t => t.IsClass && !t.IsAbstract 
+                                          && t.BaseType is { IsGenericType: true }
+                                          && t.GetCustomAttribute<PluginAttribute>() != null);
+                
+                var enumerable = pluginTypes.ToList();
+                
+                foreach (var type in enumerable)
+                {
+                    var instance = Activator.CreateInstance(type);
+                    if (instance != null)
+                    {
+                        _plugins.Add(instance);
+                        ((dynamic)instance).OnReloaded();
+                        CommandManager.RegisterCommands(assembly);
+                    }
+                    else
+                    {
+                        Log.Info("Failed to load plugin: " + type.Name);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Failed to load plugin from {file}: {ex}");
+            }
         }
     }
 }

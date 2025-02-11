@@ -10,9 +10,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Lib.Harmony" Version="2.3.5" />
-      <PackageReference Include="Timersky.Config" Version="1.0.5" />
-      <PackageReference Include="Timersky.Log" Version="1.0.6" />
+      <PackageReference Include="Timersky.Config" Version="1.0.7" />
+      <PackageReference Include="Timersky.Log" Version="1.0.9" />
     </ItemGroup>
 
 </Project>

@@ -1,25 +1,21 @@
-﻿using HarmonyLib;
+﻿using HighLight.Attributes;
 
 namespace SimplePlugin;
 
-public class Plugin : HighLight.Plugin
+[Plugin("Simple Plugin", "Ivan Timersky", "1.0.0")]
+public class Plugin : HighLight.Plugin<Config>
 {
-    public string Name => "Simple Plugin";
-    public string Description => "";
-    public string Author => "Ivan Timersky";
-    public Version Version => new(1, 0, 0);
-    
-    public void OnEnable()
+    public override void OnEnable()
     {
         base.OnEnable();
     }
 
-    public void OnDisable()
+    public override void OnDisable()
     {
         base.OnDisable();
     }
 
-    public void OnReloaded()
+    public override void OnReloaded()
     {
         base.OnReloaded();
     }

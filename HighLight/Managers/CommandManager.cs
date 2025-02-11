@@ -1,6 +1,7 @@
 using System.Reflection;
 using HighLight.Attributes;
 using HighLight.Interfaces;
+using Timersky.Log;
 
 namespace HighLight.Managers;
 
@@ -17,31 +18,35 @@ public static class CommandManager
     {
         if (input == null || input.Length == 0)
         {
-            Program.Log.Warning("No command entered.");
+            Log.Warning("No command entered.");
             return;
         }
 
         var commandName = input[0].ToLower();
         var args = input.Skip(1).ToArray();
-
-        if (Commands.TryGetValue(commandName, out var command))
+        
+        ICommand? command = Commands.Values.FirstOrDefault(cmd =>
+            cmd.Name.Equals(commandName, StringComparison.OrdinalIgnoreCase) ||
+            cmd.Aliases.Any(alias => alias.Equals(commandName, StringComparison.OrdinalIgnoreCase)));
+        
+        if (command != null)
         {
             if (command.Execute(args, out var response))
             {
                 if (string.IsNullOrEmpty(response)) return;
                 
-                Program.Log.Info(response);
+                Log.Info(response);
             }
             else
             {
                 if (string.IsNullOrEmpty(response)) return;
                 
-                Program.Log.Error(response);
+                Log.Error(response);
             }
         }
         else
         {
-            Program.Log.Warning($"Command '{commandName}' not found.");
+            Log.Warning($"Command '{commandName}' not found.");
         }
     }
 
@@ -56,7 +61,7 @@ public static class CommandManager
             if (Activator.CreateInstance(type) is ICommand command)
             {
                 Commands[command.Name.ToLower()] = command;
-                Program.Log.Debug($"Registered command: {command.Name}");
+                Log.Debug($"Registered command: {command.Name}");
             }
         }
     }

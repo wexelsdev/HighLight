@@ -7,7 +7,8 @@ namespace SimplePlugin.Commands;
 public class Info : ICommand
 {
     public string Name => "Info";
-    public string Desc => "Shows info";
+    public string[] Aliases => [];
+    public string Description => "Shows info";
     
     public bool Execute(string[] args, out string? response)
     {
