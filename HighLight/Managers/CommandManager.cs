@@ -7,11 +7,6 @@ namespace HighLight.Managers;
 
 public static class CommandManager
 {
-    static CommandManager()
-    {
-        RegisterCommands(Assembly.GetExecutingAssembly());
-    }
-
     internal static readonly Dictionary<string, ICommand> Commands = new();
     
     public static void HandleCommand(string[]? input)
@@ -50,7 +45,7 @@ public static class CommandManager
         }
     }
 
-    internal static void RegisterCommands(Assembly assembly)
+    internal static void RegisterCommands(Assembly assembly, bool showLog = true)
     {
         var commandTypes = assembly
             .GetTypes()
@@ -61,8 +56,13 @@ public static class CommandManager
             if (Activator.CreateInstance(type) is ICommand command)
             {
                 Commands[command.Name.ToLower()] = command;
-                Log.Debug($"Registered command: {command.Name}");
+                if (showLog)
+                {
+                    Log.Debug($"Registered command: {command.Name}");
+                }
             }
         }
     }
+
+    internal static void UnregisterCommands() => Commands.Clear();
 }

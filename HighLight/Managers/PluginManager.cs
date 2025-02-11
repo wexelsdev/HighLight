@@ -8,9 +8,9 @@ namespace HighLight.Managers;
 
 public static class PluginManager
 {
-    private static readonly List<object> _plugins = new();
+    private static readonly List<object> Plugins = new();
 
-    public static string DefaultPluginsPath { get; private set; } = $"{AppDomain.CurrentDomain.BaseDirectory}Plugins/";
+    public static string DefaultPluginsPath { get; set; } = $"{AppDomain.CurrentDomain.BaseDirectory}Plugins/";
 
     public static void LoadPlugins(string directory = "")
     {
@@ -32,27 +32,57 @@ public static class PluginManager
             try
             {
                 var assembly = Assembly.LoadFrom(file);
-                
-                IEnumerable<Type> pluginTypes = assembly.GetTypes()
-                    .Where(t => t.IsClass && !t.IsAbstract 
-                                          && t.BaseType is { IsGenericType: true }
-                                          && t.GetCustomAttribute<PluginAttribute>() != null);
-                
-                var enumerable = pluginTypes.ToList();
-                
-                foreach (var type in enumerable)
+                var pluginTypes = assembly.GetTypes()
+                    .Where(t => t.IsClass && !t.IsAbstract && t.BaseType?.IsGenericType == true
+                                && t.GetCustomAttribute<PluginAttribute>() != null)
+                    .ToList();
+
+                foreach (var type in pluginTypes)
                 {
-                    var instance = Activator.CreateInstance(type);
-                    if (instance != null)
+                    object? instance = Activator.CreateInstance(type);
+                    if (instance == null)
                     {
-                        _plugins.Add(instance);
-                        ((dynamic)instance).OnEnable();
-                        CommandManager.RegisterCommands(assembly);
+                        Log.Error($"Failed to instantiate plugin: {type.Name}");
+                        continue;
                     }
-                    else
+
+                    var nameProperty = type.GetProperty("Name");
+                    if (nameProperty == null)
                     {
-                        Log.Info("Failed to load plugin: " + type.Name);
+                        Log.Error($"Plugin {type.Name} does not have a Name property");
+                        continue;
                     }
+
+                    string? pluginName = nameProperty.GetValue(instance) as string;
+                    if (string.IsNullOrEmpty(pluginName))
+                    {
+                        Log.Error($"Plugin {type.Name} has an invalid Name");
+                        continue;
+                    }
+
+                    MethodInfo? loadConfigMethod = typeof(ConfigManager)
+                        .GetMethod("LoadConfig")?
+                        .MakeGenericMethod(type.BaseType!.GetGenericArguments()[0]);
+
+                    object? configInstance = loadConfigMethod?.Invoke(null,
+                        [$"{DefaultPluginsPath}{pluginName.ToLower().Replace(' ', '_')}.toml"]);
+
+                    if (configInstance == null)
+                    {
+                        Log.Error($"Failed to load config for plugin {pluginName}");
+                        continue;
+                    }
+
+                    var isEnabledProperty = configInstance.GetType().GetProperty("IsEnabled");
+                    if (isEnabledProperty == null || !(bool)(isEnabledProperty.GetValue(configInstance) ?? false))
+                    {
+                        continue;
+                    }
+
+                    Plugins.Add(instance);
+                    type.GetProperty("Config")?.SetValue(instance, configInstance);
+                    type.GetMethod("OnEnable")?.Invoke(instance, null);
+                    CommandManager.RegisterCommands(assembly);
                 }
             }
             catch (Exception ex)
@@ -64,18 +94,19 @@ public static class PluginManager
 
     public static void UnloadPlugins()
     {
-        foreach (var plugin in _plugins)
+        foreach (var plugin in Plugins)
         {
             ((dynamic)plugin).OnDisable();
         }
-        _plugins.Clear();
+        Plugins.Clear();
     }
 
     public static void ReloadPlugins()
     {
-        _plugins.Clear();
+        Plugins.Clear();
+        CommandManager.UnregisterCommands();
 
-        Log.Info("Loading plugins");
+        Log.Info("Reloading plugins");
         
         var pluginFiles = Directory.GetFiles(DefaultPluginsPath, "*.dll");
         foreach (var file in pluginFiles)
@@ -83,27 +114,57 @@ public static class PluginManager
             try
             {
                 var assembly = Assembly.LoadFrom(file);
-                
-                IEnumerable<Type> pluginTypes = assembly.GetTypes()
-                    .Where(t => t.IsClass && !t.IsAbstract 
-                                          && t.BaseType is { IsGenericType: true }
-                                          && t.GetCustomAttribute<PluginAttribute>() != null);
-                
-                var enumerable = pluginTypes.ToList();
-                
-                foreach (var type in enumerable)
+                var pluginTypes = assembly.GetTypes()
+                    .Where(t => t.IsClass && !t.IsAbstract && t.BaseType?.IsGenericType == true
+                                && t.GetCustomAttribute<PluginAttribute>() != null)
+                    .ToList();
+
+                foreach (var type in pluginTypes)
                 {
-                    var instance = Activator.CreateInstance(type);
-                    if (instance != null)
+                    object? instance = Activator.CreateInstance(type);
+                    if (instance == null)
                     {
-                        _plugins.Add(instance);
-                        ((dynamic)instance).OnReloaded();
-                        CommandManager.RegisterCommands(assembly);
+                        Log.Error($"Failed to instantiate plugin: {type.Name}");
+                        continue;
                     }
-                    else
+
+                    var nameProperty = type.GetProperty("Name");
+                    if (nameProperty == null)
                     {
-                        Log.Info("Failed to load plugin: " + type.Name);
+                        Log.Error($"Plugin {type.Name} does not have a Name property");
+                        continue;
                     }
+
+                    string? pluginName = nameProperty.GetValue(instance) as string;
+                    if (string.IsNullOrEmpty(pluginName))
+                    {
+                        Log.Error($"Plugin {type.Name} has an invalid Name");
+                        continue;
+                    }
+
+                    MethodInfo? loadConfigMethod = typeof(ConfigManager)
+                        .GetMethod("LoadConfig")?
+                        .MakeGenericMethod(type.BaseType!.GetGenericArguments()[0]);
+
+                    object? configInstance = loadConfigMethod?.Invoke(null,
+                        [$"{DefaultPluginsPath}{pluginName.ToLower().Replace(' ', '_')}.toml"]);
+
+                    if (configInstance == null)
+                    {
+                        Log.Error($"Failed to load config for plugin {pluginName}");
+                        continue;
+                    }
+
+                    var isEnabledProperty = configInstance.GetType().GetProperty("IsEnabled");
+                    if (isEnabledProperty == null || !(bool)(isEnabledProperty.GetValue(configInstance) ?? false))
+                    {
+                        continue;
+                    }
+
+                    Plugins.Add(instance);
+                    type.GetProperty("Config")?.SetValue(instance, configInstance);
+                    type.GetMethod("OnReloaded")?.Invoke(instance, null);
+                    CommandManager.RegisterCommands(assembly);
                 }
             }
             catch (Exception ex)

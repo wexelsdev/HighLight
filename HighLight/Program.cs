@@ -1,4 +1,5 @@
-﻿using HighLight.Managers;
+﻿using System.Reflection;
+using HighLight.Managers;
 using Timersky.Config;
 using Timersky.Log;
 
@@ -33,6 +34,7 @@ public static class Program
         
         Log.Info("Starting...");
         
+        CommandManager.RegisterCommands(Assembly.GetExecutingAssembly(), false);
         PluginManager.LoadPlugins();
         
         AppDomain.CurrentDomain.ProcessExit += OnProcessExit;
@@ -46,6 +48,7 @@ public static class Program
         Log.Info("Exiting...");
         
         PluginManager.UnloadPlugins();
+        CommandManager.UnregisterCommands();
         
         AppDomain.CurrentDomain.ProcessExit -= OnProcessExit;
         Console.CancelKeyPress -= OnCancelKeyPress;

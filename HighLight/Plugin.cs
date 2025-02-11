@@ -1,12 +1,13 @@
 using System.Reflection;
 using HighLight.Attributes;
+using HighLight.Interfaces;
 using HighLight.Managers;
 using Timersky.Config;
 using Timersky.Log;
 
 namespace HighLight;
 
-public class Plugin<TConfig> where TConfig : IConfig
+public class Plugin<TConfig> where TConfig : IPluginConfig
 {
     public string Name { get; }
     public string Description { get; }
@@ -30,11 +31,10 @@ public class Plugin<TConfig> where TConfig : IConfig
         }
     }
     
-    public TConfig? Config { get; private set; }
+    public TConfig? Config { get; internal set; }
     
     public virtual void OnEnable()
     {
-        Config = ConfigManager.LoadConfig<TConfig>($"{PluginManager.DefaultPluginsPath}{Name.ToLower().Replace(' ', '_')}.toml");
         Log.Info($"Loaded {Name}, v.{Version} by {Author}");
     }
 
